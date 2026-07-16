@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>CFD Agent Benchmark v2 Results - Runs Comparison</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f4f6f8;
+      color: #172126;
+      letter-spacing: 0;
+    }
+    body { margin: 0; min-width: 320px; background: #f4f6f8; }
+    #cfdab-root, #cfdab-root * { box-sizing: border-box; }
+    #cfdab-root { min-height: 100vh; color: #172126; background: #f4f6f8; }
+    #cfdab-root .cfdab-header { border-bottom: 1px solid #d9dee3; background: #ffffff; }
+    #cfdab-root .cfdab-header-inner,
+    #cfdab-root .cfdab-main { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    #cfdab-root .cfdab-header-inner { padding: 34px 0 28px; }
+    #cfdab-root .cfdab-kicker { margin: 0 0 6px; color: #0f766e; font-size: 13px; font-weight: 700; text-transform: uppercase; }
+    #cfdab-root h1 { margin: 0; font-size: 30px; line-height: 1.2; font-weight: 750; letter-spacing: 0; }
+    #cfdab-root .cfdab-subtitle { max-width: 780px; margin: 10px 0 0; color: #59656d; font-size: 15px; line-height: 1.6; }
+    #cfdab-root .cfdab-main { padding: 26px 0 44px; }
+    #cfdab-root .cfdab-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+    #cfdab-root .cfdab-segmented { display: inline-flex; padding: 3px; border: 1px solid #cbd2d8; border-radius: 7px; background: #ffffff; }
+    #cfdab-root .cfdab-mode { min-height: 34px; padding: 6px 13px; border: 0; border-radius: 5px; background: transparent; color: #4b5961; font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; }
+    #cfdab-root .cfdab-mode:hover { background: #eef2f4; color: #172126; }
+    #cfdab-root .cfdab-mode[aria-pressed="true"] { background: #172126; color: #ffffff; }
+    #cfdab-root .cfdab-summary { color: #59656d; font-size: 13px; text-align: right; }
+    #cfdab-root .cfdab-chart { overflow: hidden; border: 1px solid #d5dce1; border-radius: 8px; background: #ffffff; }
+    #cfdab-root .cfdab-scale { display: grid; grid-template-columns: 46px minmax(210px, 1fr) minmax(320px, 2fr) 92px; min-height: 40px; align-items: end; border-bottom: 1px solid #e2e7ea; background: #f9fafb; color: #6a767d; font-size: 11px; }
+    #cfdab-root .cfdab-scale-track { position: relative; display: flex; justify-content: space-between; padding: 0 0 8px; }
+    #cfdab-root .cfdab-scale-track span { transform: translateX(-50%); }
+    #cfdab-root .cfdab-scale-track span:first-child { transform: none; }
+    #cfdab-root .cfdab-scale-track span:last-child { transform: translateX(0); }
+    #cfdab-root .cfdab-row { display: grid; grid-template-columns: 46px minmax(210px, 1fr) minmax(320px, 2fr) 92px; min-height: 96px; align-items: center; border-bottom: 1px solid #e6eaed; }
+    #cfdab-root .cfdab-row:last-child { border-bottom: 0; }
+    #cfdab-root .cfdab-rank { color: #66737a; font-size: 15px; font-variant-numeric: tabular-nums; text-align: center; }
+    #cfdab-root .cfdab-meta { min-width: 0; padding: 16px 18px 16px 4px; }
+    #cfdab-root .cfdab-model-signature { overflow-wrap: anywhere; font-size: 16px; font-weight: 800; line-height: 1.35; }
+    #cfdab-root .cfdab-run-line { margin-top: 6px; color: #758188; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; line-height: 1.4; overflow-wrap: anywhere; }
+    #cfdab-root .cfdab-bar-cell { padding-right: 22px; }
+    #cfdab-root .cfdab-track { position: relative; height: 34px; overflow: hidden; border: 1px solid #d9dfe3; border-radius: 5px; background-color: #f0f3f5; background-image: linear-gradient(to right, transparent calc(25% - 1px), #d9dfe3 25%, transparent calc(25% + 1px), transparent calc(50% - 1px), #d9dfe3 50%, transparent calc(50% + 1px), transparent calc(75% - 1px), #d9dfe3 75%, transparent calc(75% + 1px)); }
+    #cfdab-root .cfdab-fill { width: 0; height: 100%; border-radius: 4px; transition: width 260ms ease; }
+    #cfdab-root .cfdab-fill.cfdab-high { background: #0f766e; }
+    #cfdab-root .cfdab-fill.cfdab-mid { background: #2563a8; }
+    #cfdab-root .cfdab-fill.cfdab-low { background: #b45309; }
+    #cfdab-root .cfdab-fill.cfdab-invalid { background: #899399; }
+    #cfdab-root .cfdab-score { padding-right: 18px; text-align: right; }
+    #cfdab-root .cfdab-score-value { font-size: 22px; font-weight: 780; font-variant-numeric: tabular-nums; }
+    #cfdab-root .cfdab-score-max { color: #78838a; font-size: 12px; }
+    #cfdab-root .cfdab-status { display: inline-block; margin-top: 5px; color: #5a666d; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    #cfdab-root .cfdab-empty { padding: 44px 20px; color: #68747b; text-align: center; }
+    #cfdab-root .cfdab-details { margin-top: 28px; }
+    #cfdab-root h2 { margin: 0 0 12px; font-size: 18px; line-height: 1.3; letter-spacing: 0; }
+    #cfdab-root .cfdab-table-wrap { overflow-x: auto; border: 1px solid #d5dce1; border-radius: 8px; background: #ffffff; }
+    #cfdab-root table { width: 100%; min-width: 940px; border-collapse: collapse; font-size: 13px; }
+    #cfdab-root th, #cfdab-root td { padding: 11px 12px; border-bottom: 1px solid #e5e9ec; text-align: left; vertical-align: middle; }
+    #cfdab-root th { background: #f8fafb; color: #59656c; font-size: 11px; font-weight: 750; text-transform: uppercase; }
+    #cfdab-root tbody tr:last-child td { border-bottom: 0; }
+    #cfdab-root td.cfdab-number { font-variant-numeric: tabular-nums; text-align: right; }
+    #cfdab-root .cfdab-stage-list { color: #59656c; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; white-space: nowrap; }
+    #cfdab-root .cfdab-footnote { margin: 16px 0 0; color: #748087; font-size: 12px; line-height: 1.6; }
+    @media (max-width: 820px) {
+      #cfdab-root .cfdab-header-inner, #cfdab-root .cfdab-main { width: min(100% - 24px, 1180px); }
+      #cfdab-root .cfdab-header-inner { padding: 26px 0 22px; }
+      #cfdab-root h1 { font-size: 25px; }
+      #cfdab-root .cfdab-toolbar { align-items: flex-start; flex-direction: column; }
+      #cfdab-root .cfdab-summary { text-align: left; }
+      #cfdab-root .cfdab-scale { display: none; }
+      #cfdab-root .cfdab-row { grid-template-columns: 38px minmax(0, 1fr) 76px; min-height: 126px; padding: 12px 0; }
+      #cfdab-root .cfdab-meta { padding: 4px 12px 8px 0; }
+      #cfdab-root .cfdab-bar-cell { grid-column: 2 / 4; grid-row: 2; padding: 0 14px 3px 0; }
+      #cfdab-root .cfdab-score { padding-right: 12px; }
+      #cfdab-root .cfdab-score-value { font-size: 19px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #cfdab-root .cfdab-fill { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main id="cfdab-root" data-default-view="latest">
+    <header class="cfdab-header">
+      <div class="cfdab-header-inner">
+        <p class="cfdab-kicker">Evaluator runs comparison</p>
+        <h1>CFD Agent Benchmark v2 Results</h1>
+        <p class="cfdab-subtitle">按正式得分从高到低排列。可切换每个 Agent 的最新结果、最佳结果或全部 runs；所有数据均来自 evaluator 生成的 JSON。</p>
+      </div>
+    </header>
+    <div class="cfdab-main">
+      <div class="cfdab-toolbar">
+        <div class="cfdab-segmented" role="group" aria-label="结果选择方式">
+          <button class="cfdab-mode" type="button" data-mode="latest" aria-pressed="false">最新结果</button>
+          <button class="cfdab-mode" type="button" data-mode="best" aria-pressed="false">最佳结果</button>
+          <button class="cfdab-mode" type="button" data-mode="all" aria-pressed="false">全部 Runs</button>
+        </div>
+        <div class="cfdab-summary" id="cfdab-summary"></div>
+      </div>
+      <section class="cfdab-chart" aria-label="Agent 得分柱状图">
+        <div class="cfdab-scale" aria-hidden="true">
+          <span></span><span></span>
+          <div class="cfdab-scale-track"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+          <span></span>
+        </div>
+        <div id="cfdab-chart-body"></div>
+      </section>
+      <section class="cfdab-details" aria-labelledby="cfdab-details-title">
+        <h2 id="cfdab-details-title">运行明细</h2>
+        <div class="cfdab-table-wrap">
+          <table>
+            <thead><tr><th>排名</th><th>Agent ID</th><th>Agent</th><th>Model</th><th>Reasoning</th><th>Run</th><th>Stages</th><th>Status</th><th>Score</th></tr></thead>
+            <tbody id="cfdab-table-body"></tbody>
+          </table>
+        </div>
+        <p class="cfdab-footnote" id="cfdab-footnote"></p>
+      </section>
+    </div>
+  </main>
+  <script id="cfdab-data" type="application/json">{"schema_version":"cfd-agent-runs-comparison-v1","generated_at_utc":"2026-07-16T12:30:32.373224+00:00","runs_dir":"published evaluator runs","warnings":[],"runs":[{"directory":"agent-001-001","run_id":"20260714T213101Z-aa975621","participant_id":"agent-001","agent":"opencode","model":"gpt-5.6-sol","reasoning":"xhigh","model_signature":"opencode/gpt-5.6-sol/xhigh","run_label":"agent-001/agent-001-001","surface":"cli","score":100.0,"max_score":100.0,"percentage":100.0,"status":"COMPLETE","stage_scores":{"1":10.0,"2":15.0,"3":25.0,"4":15.0,"5":20.0,"6":15.0},"timestamp_utc":"2026-07-14T21:31:01+00:00","sort_time":1784064661.0,"evaluator_commit":"f90f3dd70bdd477a4342638033a337fa2677fbc4","candidate_commit":"0123456789abcdef","trust_level":"local"},{"directory":"agent-002-001","run_id":"20260715T123451Z-bae2d869","participant_id":"agent-002","agent":"opencode","model":"grok-4.5","reasoning":"high","model_signature":"opencode/grok-4.5/high","run_label":"agent-002/agent-002-001","surface":"cli","score":100.0,"max_score":100.0,"percentage":100.0,"status":"COMPLETE","stage_scores":{"1":10.0,"2":15.0,"3":25.0,"4":15.0,"5":20.0,"6":15.0},"timestamp_utc":"2026-07-15T12:34:51+00:00","sort_time":1784118891.0,"evaluator_commit":"f90f3dd70bdd477a4342638033a337fa2677fbc4","candidate_commit":"0123456789abcdef","trust_level":"local"},{"directory":"agent-003-001","run_id":"20260714T233207Z-9c14b6ec","participant_id":"agent-003","agent":"opencode","model":"deepseek-v4-pro","reasoning":"max","model_signature":"opencode/deepseek-v4-pro/max","run_label":"agent-003/agent-003-001","surface":"cli","score":75.4,"max_score":100.0,"percentage":75.4,"status":"COMPLETE","stage_scores":{"1":10.0,"2":15.0,"3":23.4,"4":12.0,"5":0.0,"6":15.0},"timestamp_utc":"2026-07-14T23:32:07+00:00","sort_time":1784071927.0,"evaluator_commit":"f90f3dd70bdd477a4342638033a337fa2677fbc4","candidate_commit":"0123456789abcdef","trust_level":"local"},{"directory":"agent-004-001","run_id":"20260715T232439Z-9c4ca197","participant_id":"agent-004","agent":"opencode","model":"GLM-5.2","reasoning":"max","model_signature":"opencode/GLM-5.2/max","run_label":"agent-004/agent-004-001","surface":"cli","score":100.0,"max_score":100.0,"percentage":100.0,"status":"COMPLETE","stage_scores":{"1":10.0,"2":15.0,"3":25.0,"4":15.0,"5":20.0,"6":15.0},"timestamp_utc":"2026-07-15T23:24:39+00:00","sort_time":1784157879.0,"evaluator_commit":"83cabe27af67cc7946da2ae3b809d6692d611274","candidate_commit":"0123456789abcdef","trust_level":"local"},{"directory":"agent-005-001","run_id":"20260715T232822Z-7513470e","participant_id":"agent-005","agent":"opencode","model":"claude-opus-4.7","reasoning":"high","model_signature":"opencode/claude-opus-4.7/high","run_label":"agent-005/agent-005-001","surface":"cli","score":97.0,"max_score":100.0,"percentage":97.0,"status":"COMPLETE","stage_scores":{"1":10.0,"2":15.0,"3":25.0,"4":15.0,"5":20.0,"6":12.0},"timestamp_utc":"2026-07-15T23:28:22+00:00","sort_time":1784158102.0,"evaluator_commit":"83cabe27af67cc7946da2ae3b809d6692d611274","candidate_commit":"0123456789abcdef","trust_level":"local"}]}</script>
+  <script>
+    (() => {
+      "use strict";
+      const payload = JSON.parse(document.getElementById("cfdab-data").textContent);
+      const root = document.getElementById("cfdab-root");
+      const chartBody = document.getElementById("cfdab-chart-body");
+      const tableBody = document.getElementById("cfdab-table-body");
+      const summary = document.getElementById("cfdab-summary");
+      const footnote = document.getElementById("cfdab-footnote");
+      const buttons = [...root.querySelectorAll(".cfdab-mode")];
+
+      const scoreValue = run => Number.isFinite(run.score) ? run.score : -Infinity;
+      const compareRuns = (left, right) =>
+        scoreValue(right) - scoreValue(left) ||
+        left.participant_id.localeCompare(right.participant_id) ||
+        right.sort_time - left.sort_time ||
+        left.directory.localeCompare(right.directory);
+
+      function selectRuns(mode) {
+        if (mode === "all") return [...payload.runs].sort(compareRuns);
+        const selected = new Map();
+        for (const run of payload.runs) {
+          const current = selected.get(run.participant_id);
+          if (!current) {
+            selected.set(run.participant_id, run);
+            continue;
+          }
+          const replace = mode === "latest"
+            ? run.sort_time > current.sort_time
+            : scoreValue(run) > scoreValue(current) ||
+              (scoreValue(run) === scoreValue(current) && run.sort_time > current.sort_time);
+          if (replace) selected.set(run.participant_id, run);
+        }
+        return [...selected.values()].sort(compareRuns);
+      }
+
+      function rankRuns(runs) {
+        let previous = null;
+        let rank = 0;
+        return runs.map((run, index) => {
+          if (!Number.isFinite(run.score)) return {...run, rank: "-"};
+          if (previous === null || run.score !== previous) rank = index + 1;
+          previous = run.score;
+          return {...run, rank};
+        });
+      }
+
+      function node(tag, className, text) {
+        const element = document.createElement(tag);
+        if (className) element.className = className;
+        if (text !== undefined) element.textContent = text;
+        return element;
+      }
+
+      function formatScore(value) {
+        if (!Number.isFinite(value)) return "N/A";
+        return Number.isInteger(value) ? value.toFixed(0) : value.toFixed(1);
+      }
+
+      function fillClass(run) {
+        if (!Number.isFinite(run.percentage)) return "cfdab-invalid";
+        if (run.percentage >= 90) return "cfdab-high";
+        if (run.percentage >= 70) return "cfdab-mid";
+        return "cfdab-low";
+      }
+
+      function renderChart(runs) {
+        chartBody.replaceChildren();
+        if (!runs.length) {
+          chartBody.append(node("div", "cfdab-empty", "没有可显示的评测结果"));
+          return;
+        }
+        for (const run of runs) {
+          const row = node("article", "cfdab-row");
+          row.setAttribute("aria-label", `${run.model_signature}, ${run.run_label}: ${formatScore(run.score)} / ${formatScore(run.max_score)}`);
+          row.append(node("div", "cfdab-rank", run.rank === "-" ? "-" : `#${run.rank}`));
+
+          const meta = node("div", "cfdab-meta");
+          meta.append(node("div", "cfdab-model-signature", run.model_signature));
+          const runLine = node("div", "cfdab-run-line", run.run_label);
+          runLine.title = `${run.run_id} · ${run.timestamp_utc}`;
+          meta.append(runLine);
+          row.append(meta);
+
+          const barCell = node("div", "cfdab-bar-cell");
+          const track = node("div", "cfdab-track");
+          const fill = node("div", `cfdab-fill ${fillClass(run)}`);
+          fill.style.width = `${Number.isFinite(run.percentage) ? run.percentage : 0}%`;
+          track.append(fill);
+          barCell.append(track);
+          row.append(barCell);
+
+          const score = node("div", "cfdab-score");
+          score.append(node("div", "cfdab-score-value", formatScore(run.score)));
+          score.append(node("div", "cfdab-score-max", `/ ${formatScore(run.max_score)}`));
+          score.append(node("div", "cfdab-status", run.status));
+          row.append(score);
+          chartBody.append(row);
+        }
+      }
+
+      function renderTable(runs) {
+        tableBody.replaceChildren();
+        for (const run of runs) {
+          const row = document.createElement("tr");
+          const values = [run.rank, run.participant_id, run.agent, run.model, run.reasoning, run.directory];
+          for (const value of values) row.append(node("td", "", String(value)));
+          const stageValues = Object.keys(run.stage_scores)
+            .sort((a, b) => Number(a) - Number(b))
+            .map(key => run.stage_scores[key]);
+          row.append(node("td", "cfdab-stage-list", stageValues.length ? stageValues.join(" / ") : "-"));
+          row.append(node("td", "", run.status));
+          row.append(node("td", "cfdab-number", `${formatScore(run.score)} / ${formatScore(run.max_score)}`));
+          tableBody.append(row);
+        }
+      }
+
+      function render(mode) {
+        const runs = rankRuns(selectRuns(mode));
+        for (const button of buttons) button.setAttribute("aria-pressed", String(button.dataset.mode === mode));
+        renderChart(runs);
+        renderTable(runs);
+        const valid = runs.filter(run => Number.isFinite(run.score)).length;
+        summary.textContent = `${runs.length} 条结果 · ${valid} 条有效分数 · 按分数降序`;
+        footnote.textContent = `生成时间 ${payload.generated_at_utc} · 数据源 ${payload.runs_dir} · 跳过 ${payload.warnings.length} 个无效目录`;
+      }
+
+      for (const button of buttons) button.addEventListener("click", () => render(button.dataset.mode));
+      const api = Object.freeze({runs: payload.runs, render, selectRuns});
+      window.CfdAgentBenchmarkComparison = api;
+      render(root.dataset.defaultView || "latest");
+    })();
+  </script>
+</body>
+</html>
